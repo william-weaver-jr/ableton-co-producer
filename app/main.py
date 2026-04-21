@@ -25,7 +25,12 @@ def main() -> None:
     print(raw_response)
 
     try:
-        parsed = ClaudeActionResponse.model_validate(json.loads(raw_response))
+        payload = json.loads(raw_response)
+        # Support both Pydantic v2 (`model_validate`) and v1 (`parse_obj`).
+        if hasattr(ClaudeActionResponse, "model_validate"):
+            parsed = ClaudeActionResponse.model_validate(payload)
+        else:
+            parsed = ClaudeActionResponse.parse_obj(payload)
     except json.JSONDecodeError as exc:
         print(f"\n[ERROR] Invalid JSON from Claude: {exc}")
         return
